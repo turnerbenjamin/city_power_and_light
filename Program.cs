@@ -1,4 +1,5 @@
 ﻿using CityPowerAndLight.Config;
+using CityPowerAndLight.Model;
 using CityPowerAndLight.Service;
 using Microsoft.Xrm.Sdk;
 
@@ -20,28 +21,26 @@ class Program
 
     static void CreateAccount(IOrganizationService service)
     {
-        Entity lateBoundAccount = new("account");
-        // string primary name
-        lateBoundAccount["name"] = "Contoso (Late Bound)";
-        // Boolean (Two option)
-        lateBoundAccount["creditonhold"] = false;
-        // DateTime
-        lateBoundAccount["lastonholdtime"] = new DateTime(2023, 1, 1);
-        // Double
-        lateBoundAccount["address1_latitude"] = 47.642311;
-        lateBoundAccount["address1_longitude"] = -122.136841;
-        // Int
-        lateBoundAccount["numberofemployees"] = 500;
-        // Money
-        lateBoundAccount["revenue"] = new Money(new decimal(5000000.00));
-        // Choice (Option set)
-        lateBoundAccount["accountcategorycode"] = new OptionSetValue(1);
-
-        //Create the account
-        Guid lateBoundAccountId = service.Create(lateBoundAccount);
-        Console.WriteLine(lateBoundAccountId);
-
-        //Delete the accounts
-        service.Delete("account", lateBoundAccountId);
+        Account earlyBoundAccount = new()
+        {
+            // string primary name
+            Name = "Contoso (Early Bound)",
+            // Boolean (Two option)
+            CreditOnHold = false,
+            // DateTime
+            LastOnHoldTime = new DateTime(2023, 1, 1),
+            // Double
+            Address1_Latitude = 47.642311,
+            Address1_Longitude = -122.136841,
+            // Int
+            NumberOfEmployees = 500,
+            // Money
+            Revenue = new Money(new decimal(5000000.00)),
+            // Choice (Option set)
+            AccountCategoryCode = account_accountcategorycode.PreferredCustomer
+        };
+        Guid earlyBoundAccountId = service.Create(earlyBoundAccount);
+        Console.WriteLine(earlyBoundAccountId);
+        service.Delete(Account.EntityLogicalName, earlyBoundAccountId);
     }
 }

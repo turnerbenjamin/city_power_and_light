@@ -15,8 +15,5 @@
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
-  </ItemGroup>
-
-</Project>
+  </Project>
+  
