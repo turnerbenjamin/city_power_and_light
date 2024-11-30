@@ -4,7 +4,7 @@ namespace CityPowerAndLight.Config;
 
 public static class AppConfig
 {
-    public static void InitEnvironment()
+    public static void ParseAndSetEnvironmentVariables()
     {
         using StreamReader reader = new("Config/env.json");
         var json = reader.ReadToEnd();

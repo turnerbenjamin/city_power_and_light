@@ -1,59 +1,47 @@
-﻿namespace CityPowerAndLight;
-
-using CityPowerAndLight.Config;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.PowerPlatform.Dataverse.Client;
+﻿using CityPowerAndLight.Config;
+using CityPowerAndLight.Service;
 using Microsoft.Xrm.Sdk;
 
 class Program
 {
     static void Main()
     {
+        AppConfig.ParseAndSetEnvironmentVariables();
 
-        AppConfig.InitEnvironment();
+        string serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL") ?? "";
+        string appId = Environment.GetEnvironmentVariable("APP_ID") ?? "";
+        string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET") ?? "";
 
-        string SecretID = Environment.GetEnvironmentVariable("AppSecretId") ?? "";
-        string AppId = Environment.GetEnvironmentVariable("AppId") ?? "";
-        string InstanceUri = Environment.GetEnvironmentVariable("InstanceUri") ?? "";
+        IOrganizationService service = OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
 
-        string connectionString = $@"AuthType=ClientSecret;
-                        SkipDiscovery=true;url={InstanceUri};
-                        Secret={SecretID};
-                        ClientId={AppId};
-                        RequireNewInstance=true";
-
-        IOrganizationService service = new ServiceClient(connectionString);
-        var response = (WhoAmIResponse)service.Execute(new WhoAmIRequest());
-
-        foreach (var r in response.Results)
-        {
-            Console.WriteLine(r);
-        }
-
-        CreateCase(service);
+        CreateAccount(service);
         Console.ReadKey();
     }
 
-    static Guid CreateCase(IOrganizationService service)
-
+    static void CreateAccount(IOrganizationService service)
     {
+        Entity lateBoundAccount = new("account");
+        // string primary name
+        lateBoundAccount["name"] = "Contoso (Late Bound)";
+        // Boolean (Two option)
+        lateBoundAccount["creditonhold"] = false;
+        // DateTime
+        lateBoundAccount["lastonholdtime"] = new DateTime(2023, 1, 1);
+        // Double
+        lateBoundAccount["address1_latitude"] = 47.642311;
+        lateBoundAccount["address1_longitude"] = -122.136841;
+        // Int
+        lateBoundAccount["numberofemployees"] = 500;
+        // Money
+        lateBoundAccount["revenue"] = new Money(new decimal(5000000.00));
+        // Choice (Option set)
+        lateBoundAccount["accountcategorycode"] = new OptionSetValue(1);
 
+        //Create the account
+        Guid lateBoundAccountId = service.Create(lateBoundAccount);
+        Console.WriteLine(lateBoundAccountId);
 
-        Entity newCase = new("incident");
-
-        newCase["title"] = "Sample Case - API Test";
-        newCase["description"] = "This is a test case created via the Dataverse API.";
-        newCase["customerid"] = new EntityReference("account", Guid.NewGuid()); // Use an existing Account or Contact ID
-
-        Guid caseId = service.Create(newCase);
-
-        return caseId;
-
+        //Delete the accounts
+        service.Delete("account", lateBoundAccountId);
     }
-
-    //prvCreateIncident
-    //prvReadIncident
-
-
-
 }
