@@ -10,7 +10,7 @@ class Program
 {
     static void Main()
     {
-        string environmentVariablesJsonPath = "Config/environmentVars.json";
+        string environmentVariablesJsonPath = "Config/environmentVariables.json";
         AppConfig.ParseAndSetEnvironmentVariables(environmentVariablesJsonPath);
 
         string serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL") ?? "";
