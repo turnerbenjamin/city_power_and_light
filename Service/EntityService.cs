@@ -1,14 +1,22 @@
+using System.Net;
+using CityPowerAndLight.App;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
 namespace CityPowerAndLight.Service;
 
-internal class EntityService<T>(IOrganizationService organisationService, string entityLogicalName)
+internal class EntityService<T>(
+    IOrganizationService organisationService,
+    string entityLogicalName)
+    : IEntityService<T>
     where T : Entity
 {
+
     private readonly IOrganizationService _organisationService
         = organisationService;
+
     private readonly string _entityLogicalName = entityLogicalName;
+
 
     public Guid Create(T entity)
     {
@@ -16,34 +24,31 @@ internal class EntityService<T>(IOrganizationService organisationService, string
         return earlyBoundAccountId;
     }
 
-    public IEnumerable<T> GetAll()
+
+    public T GetById(Guid entityId)
     {
-        QueryExpression query = new(_entityLogicalName)
+        if (_organisationService.Retrieve(
+            _entityLogicalName,
+            entityId,
+            new ColumnSet(true)) is not T entity)
         {
-            ColumnSet = new ColumnSet(true),
-            PageInfo = new PagingInfo() { Count = 5000, PageNumber = 1 }
-        };
+            throw new HttpRequestException(
+                "Entity with id {entityId} was not found", null,
+                HttpStatusCode.NotFound);
+        }
 
-        List<T> allRecords = [];
-        EntityCollection results;
-
-        do
-        {
-            results = _organisationService.RetrieveMultiple(query);
-
-            foreach (Entity record in results.Entities)
-            {
-                T account = (T)record;
-                allRecords.Add(account);
-            }
-            query.PageInfo.PageNumber++;
-        } while (results.MoreRecords);
-
-        return allRecords;
+        return entity;
     }
 
-    public void Delete(Guid entityId)
+    public void Update(T updatedEntity)
+    {
+        _organisationService.Update(updatedEntity);
+    }
+
+
+    public void DeleteById(Guid entityId)
     {
         _organisationService.Delete(_entityLogicalName, entityId);
     }
+
 }

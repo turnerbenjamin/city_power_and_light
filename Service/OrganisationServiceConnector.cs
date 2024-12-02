@@ -5,8 +5,12 @@ namespace CityPowerAndLight.Service;
 
 internal static class OrganisationServiceConnector
 {
-    public static IOrganizationService Connect(string serviceUrl, string appId, string clientSecret)
+    public static IOrganizationService Connect(string? serviceUrl, string? appId, string? clientSecret)
     {
+        ArgumentNullException.ThrowIfNull(serviceUrl, nameof(serviceUrl));
+        ArgumentNullException.ThrowIfNull(appId, nameof(appId));
+        ArgumentNullException.ThrowIfNull(clientSecret, nameof(clientSecret));
+
         string connectionString = $@"AuthType=ClientSecret;
                         SkipDiscovery=true;url={serviceUrl};
                         Secret={clientSecret};

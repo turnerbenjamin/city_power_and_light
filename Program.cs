@@ -1,57 +1,45 @@
 ﻿namespace CityPowerAndLight;
 
-using CityPowerAndLight.Controller;
 using CityPowerAndLight.Model;
 using CityPowerAndLight.Service;
 using Microsoft.Xrm.Sdk;
 using DotNetEnv;
+using CityPowerAndLight.App;
 
 class Program
 {
     static void Main()
     {
-        Env.Load();
+        try
+        {
+            //Load environment variables
+            Env.Load();
+            string? serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL");
+            string? appId = Environment.GetEnvironmentVariable("APP_ID");
+            string? clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
+            string? entityIdentifierPrefix = Environment.GetEnvironmentVariable("ENTITY_IDENTIFIER_PREFIX") ?? "";
 
-        string serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL") ?? "";
-        string appId = Environment.GetEnvironmentVariable("APP_ID") ?? "";
-        string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET") ?? "";
+            //Initialise Dynamics API connection
+            IOrganizationService service = OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
 
-        IOrganizationService service = OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
+            //Initialise service dependencies
+            EntityService<Account> accountService = new(service, Account.EntityLogicalName);
+            EntityService<Contact> contactService = new(service, Contact.EntityLogicalName);
+            EntityService<Incident> incidentService = new(service, Incident.EntityLogicalName);
 
-        EntityService<Account> accountService = new(service, Account.EntityLogicalName);
-        AccountController accountController = new(accountService);
+            //Intialise and Execute App
+            var app = new CustomerServiceAPIExplorationApp(
+                accountService, contactService, incidentService, entityIdentifierPrefix
+            );
 
-        EntityService<Contact> contactService = new(service, Contact.EntityLogicalName);
-        ContactController contactController = new(contactService);
-
-        EntityService<Incident> caseService = new(service, Incident.EntityLogicalName);
-        CaseController caseController = new(caseService);
-
-        Console.WriteLine();
-        Console.WriteLine("CREATE, READ AND DELETE ACCOUNTS");
-        Guid newAccountId = accountController.Create();
-        Console.WriteLine(newAccountId);
-        accountController.ReadAll();
-
-
-        Console.WriteLine();
-        Console.WriteLine("CREATE, READ AND DELETE CONTACTS");
-        Guid newContactId = contactController.Create();
-        Console.WriteLine(newContactId);
-        contactController.ReadAll();
-
-        Console.WriteLine();
-        Console.WriteLine("CREATE, READ AND DELETE CASES");
-        Guid newCaseId = caseController.Create(newContactId);
-        Console.WriteLine(newCaseId);
-        caseController.ReadAll();
-
-        //CLEAN-UP
-        Console.WriteLine();
-        Console.WriteLine("CLEANING UP");
-        caseController.Delete(newCaseId);
-        contactController.Delete(newContactId);
-        accountController.Delete(newAccountId);
+            app.Run();
+        }
+        catch (Exception ex)
+        {
+            //Global try catch
+            Console.WriteLine("Sorry, There has been an unexpected error:");
+            Console.WriteLine(ex.Message);
+        }
 
         Console.WriteLine("Press any key to exit");
         Console.ReadKey();
