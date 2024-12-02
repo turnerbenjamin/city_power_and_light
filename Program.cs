@@ -1,17 +1,16 @@
 ﻿namespace CityPowerAndLight;
 
-using CityPowerAndLight.Config;
 using CityPowerAndLight.Controller;
 using CityPowerAndLight.Model;
 using CityPowerAndLight.Service;
 using Microsoft.Xrm.Sdk;
+using DotNetEnv;
 
 class Program
 {
     static void Main()
     {
-        string environmentVariablesJsonPath = "Config/environmentVariables.json";
-        AppConfig.ParseAndSetEnvironmentVariables(environmentVariablesJsonPath);
+        Env.Load();
 
         string serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL") ?? "";
         string appId = Environment.GetEnvironmentVariable("APP_ID") ?? "";
@@ -48,8 +47,13 @@ class Program
         caseController.ReadAll();
 
         //CLEAN-UP
+        Console.WriteLine();
+        Console.WriteLine("CLEANING UP");
         caseController.Delete(newCaseId);
         contactController.Delete(newContactId);
         accountController.Delete(newAccountId);
+
+        Console.WriteLine("Press any key to exit");
+        Console.ReadKey();
     }
 }

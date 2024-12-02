@@ -2,3 +2,5 @@
 /obj
 
 */environmentVariables.json
+*/environmentVariablesDF.json
+*.env
