@@ -50,6 +50,7 @@ internal static class DemoEntityTemplateFactory
             StatusCode = incident_statuscode.InProgress,
             CaseTypeCode = incident_casetypecode.Problem,
             ServiceStage = servicestage.Identify,
+
         };
         return newIncident;
     }

@@ -59,6 +59,10 @@ internal class CustomerServiceAPIExplorationApp(
 
         _userInterface.PrintHeading("Demonstrate Deletion of Entities");
         DemonstrateDeletionOfEntities(newAccountId, newContactId, newIncidentId);
+
+        _userInterface.PrintHeading("Validate Deletion of Incident");
+        ValidateDeletionOfIncident();
+
     }
 
 
@@ -103,6 +107,8 @@ internal class CustomerServiceAPIExplorationApp(
 
         return _organisationService.Create(_demoIncidentTemplate);
     }
+
+
 
     //Demonstrate fetching an incident. Gets the incident and the prints it 
     //using the IUserInterface dependency
@@ -156,6 +162,33 @@ internal class CustomerServiceAPIExplorationApp(
         _organisationService.Delete(Account.EntityLogicalName, accountIdToDelete);
         _userInterface.PrintMessage("Demo account deleted");
 
+    }
+
+    //Fetches all active incidents and prints their titles to the console to
+    //demonstrate that the demo incident is no longer in the DB.
+    private void ValidateDeletionOfIncident()
+    {
+        _userInterface.PrintMessage("Fetching all active incidents...");
+
+        var allActiveIncidentsFilter = new ConditionExpression(
+                "statecode",
+                ConditionOperator.Equal,
+                (int)incident_statecode.Active
+        );
+
+        var allActiveIncidents = _organisationService.GetAll<Incident>(
+            Incident.EntityLogicalName,
+            new ColumnSet("title"),
+            [allActiveIncidentsFilter]
+        );
+
+        _userInterface.PrintMessage("Current active incident titles:");
+        _userInterface.PrintMessage("");
+
+        foreach (var incident in allActiveIncidents)
+        {
+            Console.WriteLine($"- {incident.Title}");
+        }
     }
 
 

@@ -9,29 +9,21 @@ namespace CityPowerAndLight.View;
 internal class ConsoleInterface : IUserInterface
 {
     /// <summary>
-    /// Prints a title with a border to the console.
+    /// Prints a title with an astrix border to the console.
     /// </summary>
     /// <param name="title">The title to print.</param>
     public void PrintTitle(string title)
     {
-        var titlePaddingLength = 5;
-        var border = new string('*', title.Length + titlePaddingLength * 2);
-        var titlePadding = new string(' ', titlePaddingLength);
-
-        Console.WriteLine(Environment.NewLine + border);
-        Console.WriteLine($"{titlePadding}{title}");
-        Console.WriteLine(border + Environment.NewLine);
+        PrintWithBorder('*', title, 5);
     }
 
     /// <summary>
-    /// Prints a heading with an underline to the console.
+    /// Prints a heading with a dash border.
     /// </summary>
     /// <param name="title">The heading to print.</param>
     public void PrintHeading(string title)
     {
-        Console.WriteLine(Environment.NewLine + title);
-        Console.WriteLine(new string('-', title.Length) + Environment.NewLine);
-
+        PrintWithBorder('-', title);
     }
 
     /// <summary>
@@ -58,5 +50,23 @@ internal class ConsoleInterface : IUserInterface
         Console.WriteLine($"Status: {incidentToPrint.StateCode}");
         Console.WriteLine($"Type: {incidentToPrint.CaseTypeCode}");
         Console.WriteLine();
+    }
+
+    //Overload of print with border with padding defaulted to 0
+    private static void PrintWithBorder(char borderChar, string message)
+    {
+        PrintWithBorder(borderChar, message, 0);
+    }
+
+    //Prints a message with borders above and below the message. The message 
+    //will be centered withing the borders and padded by the specified value.
+    private static void PrintWithBorder(char borderChar, string message, int padding)
+    {
+        var border = new string(borderChar, message.Length + padding * 2);
+        var messagePadding = new string(' ', padding);
+
+        Console.WriteLine(Environment.NewLine + border);
+        Console.WriteLine($"{messagePadding}{message}");
+        Console.WriteLine(border + Environment.NewLine);
     }
 }
