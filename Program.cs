@@ -11,7 +11,6 @@ public class Program
 {
     public static void Main()
     {
-        //TODO: Write a simple README
         var userInterface = new ConsoleInterface();
         try
         {

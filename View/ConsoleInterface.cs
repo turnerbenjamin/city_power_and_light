@@ -52,7 +52,7 @@ internal class ConsoleInterface : IUserInterface
         Console.WriteLine();
     }
 
-    //Overload of print with border with padding defaulted to 0
+    //Overload of PrintWithBorder with padding defaulted to 0
     private static void PrintWithBorder(char borderChar, string message)
     {
         PrintWithBorder(borderChar, message, 0);
