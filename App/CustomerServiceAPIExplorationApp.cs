@@ -1,126 +1,182 @@
 using CityPowerAndLight.Model;
+using CityPowerAndLight.Utilities;
+using CityPowerAndLight.View;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 
 namespace CityPowerAndLight.App;
 
+/// <summary>
+/// The <c>CustomerServiceAPIExplorationApp</c> class provides methods to 
+/// demonstrate CRUD operations using an instance of IOrganisationService. 
+/// </summary>
+/// <param name="userInterface">The user interface for displaying messages</param>
+/// <param name="organizationService">Service for performing CRUD operations on entities.</param>
+/// <param name="demoAccountTemplate">Template for creating a demonstration account.</param>
+/// <param name="demoContactTemplate">Template for creating a demonstration contact.</param>
+/// <param name="demoIncidentTemplate">The template for creating a demonstration incident.</param>
 internal class CustomerServiceAPIExplorationApp(
-    IEntityService<Account> accountService,
-    IEntityService<Contact> contactService,
-    IEntityService<Incident> incidentService,
-    string entityIdentifierPrefix
+    IUserInterface userInterface,
+    IOrganizationService organizationService,
+    Account demoAccountTemplate,
+    Contact demoContactTemplate,
+    Incident demoIncidentTemplate
     )
 {
+    private readonly IUserInterface _userInterface = userInterface;
+    private readonly IOrganizationService _organisationService = organizationService;
+    private readonly Account _demoAccountTemplate = demoAccountTemplate;
+    private readonly Contact _demoContactTemplate = demoContactTemplate;
+    private readonly Incident _demoIncidentTemplate = demoIncidentTemplate;
 
-    private readonly IEntityService<Account> _accountService = accountService;
-    private readonly IEntityService<Contact> _contactService = contactService;
-    private readonly IEntityService<Incident> _incidentService = incidentService;
-    private readonly string _entityIdentifierPrefix = entityIdentifierPrefix;
 
+    /// <summary>
+    /// Executes the main workflow of the Customer Service API Exploration application.
+    /// </summary>
+    /// <remarks>
+    /// This method demonstrates the following operations:
+    /// <list type="bullet">
+    /// <item><description>Creation of entities (Account, Contact, Incident)</description></item>
+    /// <item><description>Retrieval of an Incident entity</description></item>
+    /// <item><description>Update of an Incident entity</description></item>
+    /// <item><description>Deletion of entities (Account, Contact, Incident)</description></item>
+    /// </list>
+    /// </remarks>
     public void Run()
     {
-        string newLine = Environment.NewLine;
+        _userInterface.PrintTitle("Running Customer Service API Exploration");
 
-        Console.WriteLine($"{newLine}***** Running Customer Service API Exploration{newLine}");
-        //Demonstrate creation of a case
-        Console.WriteLine("Creating demonstration case/incident...");
-        var newAccountId = CreateAccount();
-        var newContactId = CreateContact(newAccountId);
-        var newIncidentId = CreateIncident(newAccountId, newContactId);
+        _userInterface.PrintHeading("Demonstrate Creation of Entities");
+        var newAccountId = DemonstrateAccountCreation();
+        var newContactId = DemonstrateContactCreation(newAccountId);
+        var newIncidentId = DemonstrateIncidentCreation(newAccountId, newContactId);
 
-        //Demonstrate reading a case
-        Console.WriteLine($"Case created successfully:{newLine}");
-        Incident newIncident = _incidentService.GetById(newIncidentId);
-        PrintIncident(newIncident);
+        _userInterface.PrintHeading("Demonstrate Retrieval of an Incident");
+        var newIncident = DemonstrateFetchingAnIncident(newIncidentId);
 
-        //Demonstrate updating a case
-        Console.WriteLine($"Updating case by moving it to the next stage:{newLine}");
-        MoveIncidentToNextServiceStage(newIncident);
+        _userInterface.PrintHeading("Demonstrate Update of an Incident");
+        DemonstrateUpdatingAnIncident(newIncident);
 
-        Incident updatedIncident = _incidentService.GetById(newIncidentId);
-        Console.WriteLine($"Case successfully updated");
-        PrintIncident(updatedIncident);
-
-        //Demonstrate deleting a case by cleaning-up demo entities
-        Console.WriteLine($"Cleaning up entities created for demonstration purposes{newLine}");
-        CleanUp(newAccountId, newContactId, newIncidentId);
-        Console.WriteLine("Demo entities deleted successfully");
-        Console.WriteLine();
+        _userInterface.PrintHeading("Demonstrate Deletion of Entities");
+        DemonstrateDeletionOfEntities(newAccountId, newContactId, newIncidentId);
     }
 
 
-    private Guid CreateAccount()
+    //Demonstrate the creation of a demo account
+    private Guid DemonstrateAccountCreation()
     {
-        Account newAccount = new()
-        {
-            Name = $"{_entityIdentifierPrefix}Relecloud",
-            StatusCode = account_statuscode.Active,
-        };
-        return _accountService.Create(newAccount);
+        _userInterface.PrintMessage(
+            $"Creating demonstration account ({_demoAccountTemplate.Name})");
+
+        return _organisationService.Create(_demoAccountTemplate);
     }
 
-    private Guid CreateContact(Guid associatedAccountId)
+    //Demonstrate the creation of a demo contact. Associsates the contact with
+    //the account entity referenced by the associatedAccountId
+    private Guid DemonstrateContactCreation(Guid associatedAccountId)
     {
-        Contact newContact = new()
-        {
-            FirstName = $"{_entityIdentifierPrefix}Jane",
-            LastName = "Smith",
-            ParentCustomerId = new EntityReference("account", associatedAccountId)
-        };
+        var demoContactFullName =
+            $"{_demoContactTemplate.FirstName} {_demoContactTemplate.LastName}";
+        _userInterface.PrintMessage(
+            $"Creating demonstration contact ({demoContactFullName})");
 
-        return _contactService.Create(newContact);
+        _demoContactTemplate.ParentCustomerId =
+            new EntityReference("account", associatedAccountId);
+
+        return _organisationService.Create(_demoContactTemplate);
     }
 
-    private Guid CreateIncident(Guid associatedAccountId, Guid associatedContactId)
+    //Demonstrate the creation of a demo incident. Associates the incident with 
+    //the account and contact entities referenced by associatedAccountId and 
+    //associated contact Id respectively
+    private Guid DemonstrateIncidentCreation(
+        Guid associatedAccountId,
+        Guid associatedContactId)
     {
-        Incident newIncident = new()
-        {
-            Title = $"{_entityIdentifierPrefix}Defective Screen",
-            Description = "Laptop display is too bright",
-            CustomerId = new EntityReference(Account.EntityLogicalName, associatedAccountId),
-            PrimaryContactId = new EntityReference(Contact.EntityLogicalName, associatedContactId),
-            ServiceStage = servicestage.Identify,
-            StatusCode = incident_statuscode.InProgress,
-            CaseTypeCode = incident_casetypecode.Problem
-        };
-        return _incidentService.Create(newIncident);
+        _userInterface.PrintMessage(
+            $"Creating demonstration case ({_demoIncidentTemplate.Title})");
+
+        _demoIncidentTemplate.CustomerId =
+            new EntityReference(Account.EntityLogicalName, associatedAccountId);
+        _demoIncidentTemplate.PrimaryContactId =
+            new EntityReference(Contact.EntityLogicalName, associatedContactId);
+
+        return _organisationService.Create(_demoIncidentTemplate);
     }
 
-    private void MoveIncidentToNextServiceStage(Incident incidentToUpdate)
+    //Demonstrate fetching an incident. Gets the incident and the prints it 
+    //using the IUserInterface dependency
+    private Incident DemonstrateFetchingAnIncident(Guid incidentToFetchId)
     {
-        if (incidentToUpdate.ServiceStage == servicestage.Resolve)
+        _userInterface.PrintMessage("Fetching newly created incident...");
+
+        var incident = GetIncidentById(incidentToFetchId);
+        _userInterface.PrintIncident(incident);
+
+        return incident;
+    }
+
+    //Demonstrate updating an incident. Updates the incident by updating its
+    //service stage. Refetches the incident and then prints the result using
+    //the IUserInterface dependency
+    private void DemonstrateUpdatingAnIncident(Incident incidentToUpdate)
+    {
+        _userInterface.PrintMessage("Updating service stage...");
+
+        var maxServiceStage = servicestage.Resolve;
+        if (incidentToUpdate.ServiceStage != maxServiceStage)
         {
-            throw new ArgumentException($"Incident with id {incidentToUpdate.Id} has already been resolved");
+            incidentToUpdate.ServiceStage++;
+        }
+        else
+        {
+            incidentToUpdate.ServiceStage = servicestage.Identify;
         }
 
-        incidentToUpdate.ServiceStage++;
-        _incidentService.Update(incidentToUpdate);
+        _organisationService.Update(incidentToUpdate);
+
+        var updatedIncident = GetIncidentById(incidentToUpdate.Id);
+        _userInterface.PrintIncident(updatedIncident);
 
     }
 
-    private void CleanUp(
+    //Demonstrates the deletion of entities by removing all demo entities 
+    //created in the demonstration so far
+    private void DemonstrateDeletionOfEntities(
         Guid accountIdToDelete,
         Guid contactIdToDelete,
         Guid incidentIdToDelete)
     {
-        _incidentService.DeleteById(incidentIdToDelete);
-        _contactService.DeleteById(contactIdToDelete);
-        _accountService.DeleteById(accountIdToDelete);
+        _organisationService.Delete(Incident.EntityLogicalName, incidentIdToDelete);
+        _userInterface.PrintMessage("Demo incident deleted");
+
+        _organisationService.Delete(Contact.EntityLogicalName, contactIdToDelete);
+        _userInterface.PrintMessage("Demo contact deleted");
+
+        _organisationService.Delete(Account.EntityLogicalName, accountIdToDelete);
+        _userInterface.PrintMessage("Demo account deleted");
+
     }
 
-    private void PrintIncident(Incident incidentToPrint)
+
+    //Helper method to get an incident by id. Specifies the column set to 
+    //reduce the size of the response payload. Note, statuscode is needed with
+    //servicestage to allow for the service stage to be updated.
+    private Incident GetIncidentById(Guid incidentToFetchId)
     {
-        Console.WriteLine($"*****{incidentToPrint.Title}*****");
-        Console.WriteLine();
+        var columnSet = new ColumnSet(
+            "title",
+            "description",
+            "customerid",
+            "primarycontactid",
+            "servicestage",
+            "statuscode",
+            "statecode",
+            "casetypecode"
+        );
 
-        Console.WriteLine($"Description: {incidentToPrint.Description}");
-        Console.WriteLine($"Account: {incidentToPrint.CustomerId.Name}");
-        Console.WriteLine($"Contact: {incidentToPrint.PrimaryContactId.Name}");
-        Console.WriteLine($"Stage: {incidentToPrint.ServiceStage}");
-        Console.WriteLine($"Status: {incidentToPrint.StateCode}");
-        Console.WriteLine($"Type: {incidentToPrint.CaseTypeCode}");
-
-        Console.WriteLine();
-        Console.WriteLine($"***********************************");
-        Console.WriteLine();
+        var incident = _organisationService.GetById<Incident>(
+            Incident.EntityLogicalName, incidentToFetchId, columnSet);
+        return incident;
     }
 }

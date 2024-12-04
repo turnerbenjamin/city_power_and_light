@@ -1,15 +1,18 @@
-﻿namespace CityPowerAndLight;
-
-using CityPowerAndLight.Model;
+﻿using CityPowerAndLight.App;
+using CityPowerAndLight.Model.DemoTemplates;
 using CityPowerAndLight.Service;
-using Microsoft.Xrm.Sdk;
+using CityPowerAndLight.View;
 using DotNetEnv;
-using CityPowerAndLight.App;
+using Microsoft.Xrm.Sdk;
 
-class Program
+namespace CityPowerAndLight;
+
+public class Program
 {
-    static void Main()
+    public static void Main()
     {
+        //TODO: Write a simple README
+        var userInterface = new ConsoleInterface();
         try
         {
             //Load environment variables
@@ -17,31 +20,29 @@ class Program
             string? serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL");
             string? appId = Environment.GetEnvironmentVariable("APP_ID");
             string? clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
-            string? entityIdentifierPrefix = Environment.GetEnvironmentVariable("ENTITY_IDENTIFIER_PREFIX") ?? "";
 
             //Initialise Dynamics API connection
-            IOrganizationService service = OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
+            IOrganizationService organisationService = OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
 
-            //Initialise service dependencies
-            EntityService<Account> accountService = new(service, Account.EntityLogicalName);
-            EntityService<Contact> contactService = new(service, Contact.EntityLogicalName);
-            EntityService<Incident> incidentService = new(service, Incident.EntityLogicalName);
+            //Intitalise entity templates
+            var accountTemplate = DemoEntityTemplateFactory.GetAccountTemplate();
+            var contactTemplate = DemoEntityTemplateFactory.GetContactTemplate();
+            var incidentTemplate = DemoEntityTemplateFactory.GetIncidentTemplate();
 
             //Intialise and Execute App
             var app = new CustomerServiceAPIExplorationApp(
-                accountService, contactService, incidentService, entityIdentifierPrefix
-            );
-
+                userInterface,
+                organisationService,
+                accountTemplate,
+                contactTemplate,
+                incidentTemplate
+                );
             app.Run();
         }
         catch (Exception ex)
         {
-            //Global try catch
-            Console.WriteLine("Sorry, There has been an unexpected error:");
-            Console.WriteLine(ex.Message);
+            userInterface.PrintMessage("Sorry, There has been an unexpected error:");
+            userInterface.PrintMessage(ex.Message);
         }
-
-        Console.WriteLine("Press any key to exit");
-        Console.ReadKey();
     }
 }
