@@ -15,14 +15,13 @@ internal static class DemoEntityTemplateFactory
     /// </returns>
     public static Account GetAccountTemplate(DemoValuesConfig demoValues)
     {
-        Account newAccount = new()
+        return new Account()
         {
             Name = demoValues.AccountName,
             Telephone1 = demoValues.AccountTelephone1,
             Address1_City = demoValues.AccountAddress1_City,
             StatusCode = demoValues.AccountStatusCode,
         };
-        return newAccount;
     }
 
     /// <summary>
@@ -32,15 +31,13 @@ internal static class DemoEntityTemplateFactory
     /// </returns>
     public static Contact GetContactTemplate(DemoValuesConfig demoValues)
     {
-        Contact newContact = new()
+        return new Contact()
         {
             FirstName = demoValues.ContactFirstName,
             LastName = demoValues.ContactLastName,
             EMailAddress1 = demoValues.ContactEMailAddress1,
             Telephone1 = demoValues.ContactTelephone1,
-
         };
-        return newContact;
     }
 
     /// <summary>
@@ -50,7 +47,7 @@ internal static class DemoEntityTemplateFactory
     /// </returns>
     public static Incident GetIncidentTemplate(DemoValuesConfig demoValues)
     {
-        Incident newIncident = new()
+        return new Incident()
         {
             Title = demoValues.IncidentTitle,
             Description = demoValues.IncidentDescription,
@@ -60,6 +57,5 @@ internal static class DemoEntityTemplateFactory
             CaseOriginCode = demoValues.IncidentCaseOriginCode,
             PriorityCode = demoValues.IncidentPriorityCode,
         };
-        return newIncident;
     }
 }

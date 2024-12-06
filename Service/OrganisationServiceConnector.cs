@@ -52,7 +52,7 @@ internal static class OrganisationServiceConnector
         }
     }
 
-    //Parses the details of a DataverseConnectionException to provide a more 
+    //Parse the details of a DataverseConnectionException to provide a more 
     //readable error message
     private static string ParseDataverseConnectionExceptionDetails(
         DataverseConnectionException exception, string serviceUrl)

@@ -26,7 +26,8 @@ public static class IOrganisationServiceExtension
     this IOrganizationService organizationService,
     string entityLogicalName,
     Guid entityId,
-    ColumnSet columnSet)
+    ColumnSet columnSet
+    )
     where T : Entity
     {
         var entity = organizationService.Retrieve(
@@ -64,7 +65,7 @@ public static class IOrganisationServiceExtension
     )
     where T : Entity
     {
-        PagingInfo pagingInfo = new() { Count = 50, PageNumber = 1 };
+        PagingInfo pagingInfo = new() { Count = 100, PageNumber = 1 };
         QueryExpression query = BuildGetAllQuery(
             entityLogicalName, columnSet, conditions, pagingInfo);
 

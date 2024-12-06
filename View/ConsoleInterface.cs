@@ -10,7 +10,8 @@ namespace CityPowerAndLight.View;
 internal class ConsoleInterface : IUserInterface
 {
     /// <summary>
-    /// Prints a title with an asterisk border to the console.
+    /// Prints a title with an asterisk border to the console with some padding
+    /// to indent the title in the border
     /// </summary>
     /// <param name="title">The title to print.</param>
     public void PrintTitle(string title)

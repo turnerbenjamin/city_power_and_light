@@ -11,11 +11,16 @@ namespace CityPowerAndLight.App;
 /// The <c>CustomerServiceAPIExplorationApp</c> class provides methods to 
 /// demonstrate CRUD operations using an instance of IOrganisationService. 
 /// </summary>
-/// <param name="userInterface">The user interface for displaying messages</param>
-/// <param name="organizationService">Service for performing CRUD operations on entities.</param>
-/// <param name="demoAccountTemplate">Template for creating a demonstration account.</param>
-/// <param name="demoContactTemplate">Template for creating a demonstration contact.</param>
-/// <param name="demoIncidentTemplate">The template for creating a demonstration incident.</param>
+/// <param name="userInterface">The user interface for displaying messages
+/// </param>
+/// <param name="organizationService">Service for performing CRUD operations 
+/// on entities.</param>
+/// <param name="demoAccountTemplate">Template for creating a demonstration 
+/// account.</param>
+/// <param name="demoContactTemplate">Template for creating a demonstration 
+/// contact.</param>
+/// <param name="demoIncidentTemplate">The template for creating a demonstration 
+/// incident.</param>
 internal class CustomerServiceAPIExplorationApp(
     IUserInterface userInterface,
     IOrganizationService organizationService,
@@ -34,15 +39,18 @@ internal class CustomerServiceAPIExplorationApp(
 
 
     /// <summary>
-    /// Executes the main workflow of the Customer Service API Exploration application.
+    /// Executes the main workflow of the Customer Service API Exploration 
+    /// application.
     /// </summary>
     /// <remarks>
     /// This method demonstrates the following operations:
     /// <list type="bullet">
-    /// <item><description>Creation of entities (Account, Contact, Incident)</description></item>
+    /// <item><description>Creation of entities (Account, Contact, Incident)
+    /// </description></item>
     /// <item><description>Retrieval of an Incident entity</description></item>
     /// <item><description>Update of an Incident entity</description></item>
-    /// <item><description>Deletion of entities (Account, Contact, Incident)</description></item>
+    /// <item><description>Deletion of entities (Account, Contact, Incident)
+    /// </description></item>
     /// </list>
     /// </remarks>
     public void Run()
@@ -52,7 +60,8 @@ internal class CustomerServiceAPIExplorationApp(
         _userInterface.PrintHeading("Demonstrate Creation of Entities");
         var newAccountId = DemonstrateAccountCreation();
         var newContactId = DemonstrateContactCreation(newAccountId);
-        var newIncidentId = DemonstrateIncidentCreation(newAccountId, newContactId);
+        var newIncidentId = DemonstrateIncidentCreation(
+            newAccountId, newContactId);
 
         _userInterface.PrintHeading("Demonstrate Retrieval of entities");
         var newAccount = DemonstrateFetchingAnAccount(newAccountId);
@@ -75,7 +84,6 @@ internal class CustomerServiceAPIExplorationApp(
         ValidateDeletionOfAnEntity<Incident>(
             Incident.EntityLogicalName, "title", incident => incident.Title);
     }
-
 
     //Demonstrate the creation of a demo account
     private Guid DemonstrateAccountCreation()
@@ -102,7 +110,7 @@ internal class CustomerServiceAPIExplorationApp(
 
     //Demonstrate the creation of a demo incident. Associates the incident with 
     //the account and contact entities referenced by associatedAccountId and 
-    //associated contact Id respectively
+    //associatedContactId respectively
     private Guid DemonstrateIncidentCreation(
         Guid associatedAccountId,
         Guid associatedContactId)
@@ -150,7 +158,6 @@ internal class CustomerServiceAPIExplorationApp(
         _userInterface.PrintMessage("Fetching newly created incident...");
 
         var incident = GetIncidentById(incidentToFetchId);
-
         _userInterface.PrintEntity(incident);
 
         return incident;
@@ -159,7 +166,8 @@ internal class CustomerServiceAPIExplorationApp(
     //Demonstrate updating an account. Updates the account by updating its
     //primary contact value. Refetches the account and then prints the result 
     //using the IUserInterface dependency
-    private void DemonstrateUpdatingAnAccount(Account accountToUpdate, Guid primaryContactId)
+    private void DemonstrateUpdatingAnAccount(
+        Account accountToUpdate, Guid primaryContactId)
     {
         _userInterface.PrintMessage("Updating account primary contact...");
         accountToUpdate.PrimaryContactId =
