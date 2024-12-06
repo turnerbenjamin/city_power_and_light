@@ -25,7 +25,7 @@ CLIENT_SECRET=<secret value for your app>
 ### Entity Properties
 
 The properties of demo entities are taken from appsettings.json. You may
-customise this file if you would like differnt values.
+customise this file if you would like different values.
 
 ## The Demonstration
 
