@@ -7,6 +7,8 @@ customer service environment, using the dataverse SDK.
 
 ## Usage
 
+### Connection To Dataverse
+
 This application uses Microsoft Azure Active Directory (MSAL) for
 authentication.
 
@@ -19,6 +21,11 @@ SERVICE_URL=https://<your environment>.dynamics.com
 APP_ID=<your app id>
 CLIENT_SECRET=<secret value for your app>
 ```
+
+### Entity Properties
+
+The properties of demo entities are taken from appsettings.json. You may
+customise this file if you would like differnt values.
 
 ## The Demonstration
 
