@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using CityPowerAndLight.App;
-using CityPowerAndLight.Config;
+﻿using CityPowerAndLight.App;
 using CityPowerAndLight.Model.DemoTemplates;
 using CityPowerAndLight.Service;
 using CityPowerAndLight.View;
@@ -17,7 +15,7 @@ public class Program
         ConsoleInterface userInterface = new();
         try
         {
-            var app = SetUp(userInterface);
+            var app = InitialiseApp(userInterface);
             app.Run();
         }
         catch (Exception ex)
@@ -27,8 +25,9 @@ public class Program
         }
     }
 
-    //Initialises and injects application dependencies.
-    private static CustomerServiceAPIExplorationApp SetUp(
+    //Initialises dependencies required for the CustomerServiceAPIExplorationApp,
+    //and returns an instance of the app.
+    private static CustomerServiceAPIExplorationApp InitialiseApp(
         ConsoleInterface userInterface)
     {
         //Load dataverse credentials from environment variables
@@ -47,10 +46,8 @@ public class Program
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
+        // Initialise app configuration
         AppConfig appConfig = new(configuration);
-
-
-
 
         //Intitalise entity templates
         var accountTemplate = DemoEntityTemplateFactory.GetAccountTemplate(
@@ -63,6 +60,7 @@ public class Program
             appConfig.DemoValues
         );
 
+        //Initialise and return the application instance
         return new CustomerServiceAPIExplorationApp(
             userInterface,
             organisationService,

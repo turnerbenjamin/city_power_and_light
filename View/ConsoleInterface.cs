@@ -77,16 +77,14 @@ internal class ConsoleInterface : IUserInterface
     {
         Console.WriteLine();
         Console.WriteLine($"Title: {incidentToPrint.Title}");
+        Console.WriteLine($"Description: {incidentToPrint.Description}");
         Console.WriteLine($"Case Number: {incidentToPrint.TicketNumber}");
         Console.WriteLine($"Priority: {incidentToPrint.PriorityCode}");
         Console.WriteLine($"Origin: {incidentToPrint.CaseOriginCode}");
         Console.WriteLine($"Customer: {incidentToPrint.CustomerId.Name}");
-        Console.WriteLine($"Status Reason: {incidentToPrint.StatusCode}");
-        Console.WriteLine($"Status: {incidentToPrint.StateCode}");
-        Console.WriteLine($"CreatedOn: {incidentToPrint.CreatedOn}");
         Console.WriteLine($"Contact: {incidentToPrint.PrimaryContactId.Name}");
-        Console.WriteLine($"Description: {incidentToPrint.Description}");
-        Console.WriteLine($"Type: {incidentToPrint.CaseTypeCode}");
+        Console.WriteLine($"Status Reason: {incidentToPrint.StatusCode}");
+        Console.WriteLine($"CreatedOn: {incidentToPrint.CreatedOn}");
         Console.WriteLine($"Service Stage: {incidentToPrint.ServiceStage}");
         Console.WriteLine();
     }
