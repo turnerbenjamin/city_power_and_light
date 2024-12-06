@@ -53,11 +53,10 @@ internal static class OrganisationServiceConnector
     }
 
     //Parses the details of a DataverseConnectionException to provide a more 
-    //detailed error message
+    //readable error message
     private static string ParseDataverseConnectionExceptionDetails(
         DataverseConnectionException exception, string serviceUrl)
     {
-
         StringBuilder exceptionMessageBuilder = new();
         exceptionMessageBuilder.AppendLine("Failed to connect to dataverse");
 

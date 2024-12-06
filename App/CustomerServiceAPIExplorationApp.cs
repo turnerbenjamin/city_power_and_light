@@ -1,3 +1,4 @@
+using CityPowerAndLight.Config;
 using CityPowerAndLight.Model;
 using CityPowerAndLight.Utilities;
 using CityPowerAndLight.View;
@@ -20,7 +21,8 @@ internal class CustomerServiceAPIExplorationApp(
     IOrganizationService organizationService,
     Account demoAccountTemplate,
     Contact demoContactTemplate,
-    Incident demoIncidentTemplate
+    Incident demoIncidentTemplate,
+    DemoValuesConfig demoValues
     )
 {
     private readonly IUserInterface _userInterface = userInterface;
@@ -28,6 +30,7 @@ internal class CustomerServiceAPIExplorationApp(
     private readonly Account _demoAccountTemplate = demoAccountTemplate;
     private readonly Contact _demoContactTemplate = demoContactTemplate;
     private readonly Incident _demoIncidentTemplate = demoIncidentTemplate;
+    private readonly DemoValuesConfig _demoValues = demoValues;
 
 
     /// <summary>
@@ -51,18 +54,26 @@ internal class CustomerServiceAPIExplorationApp(
         var newContactId = DemonstrateContactCreation(newAccountId);
         var newIncidentId = DemonstrateIncidentCreation(newAccountId, newContactId);
 
-        _userInterface.PrintHeading("Demonstrate Retrieval of an Incident");
+        _userInterface.PrintHeading("Demonstrate Retrieval of entities");
+        var newAccount = DemonstrateFetchingAnAccount(newAccountId);
+        var newContact = DemonstrateFetchingAContact(newContactId);
         var newIncident = DemonstrateFetchingAnIncident(newIncidentId);
 
-        _userInterface.PrintHeading("Demonstrate Update of an Incident");
+        _userInterface.PrintHeading("Demonstrate Update of Entities");
+        DemonstrateUpdatingAnAccount(newAccount, newContactId);
+        DemonstrateUpdatingAContact(newContact);
         DemonstrateUpdatingAnIncident(newIncident);
 
         _userInterface.PrintHeading("Demonstrate Deletion of Entities");
         DemonstrateDeletionOfEntities(newAccountId, newContactId, newIncidentId);
 
-        _userInterface.PrintHeading("Validate Deletion of Incident");
-        ValidateDeletionOfIncident();
-
+        _userInterface.PrintHeading("Validate Deletion of Entitites");
+        ValidateDeletionOfAnEntity<Account>(
+            Account.EntityLogicalName, "name", account => account.Name);
+        ValidateDeletionOfAnEntity<Contact>(
+            Contact.EntityLogicalName, "fullname", contact => contact.FullName);
+        ValidateDeletionOfAnEntity<Incident>(
+            Incident.EntityLogicalName, "title", incident => incident.Title);
     }
 
 
@@ -79,10 +90,9 @@ internal class CustomerServiceAPIExplorationApp(
     //the account entity referenced by the associatedAccountId
     private Guid DemonstrateContactCreation(Guid associatedAccountId)
     {
-        var demoContactFullName =
-            $"{_demoContactTemplate.FirstName} {_demoContactTemplate.LastName}";
         _userInterface.PrintMessage(
-            $"Creating demonstration contact ({demoContactFullName})");
+            $"Creating demonstration contact (" +
+            $"{_demoContactTemplate.FirstName} {_demoContactTemplate.LastName})");
 
         _demoContactTemplate.ParentCustomerId =
             new EntityReference("account", associatedAccountId);
@@ -98,7 +108,7 @@ internal class CustomerServiceAPIExplorationApp(
         Guid associatedContactId)
     {
         _userInterface.PrintMessage(
-            $"Creating demonstration case ({_demoIncidentTemplate.Title})");
+            $"Creating demonstration incident ({_demoIncidentTemplate.Title})");
 
         _demoIncidentTemplate.CustomerId =
             new EntityReference(Account.EntityLogicalName, associatedAccountId);
@@ -108,6 +118,29 @@ internal class CustomerServiceAPIExplorationApp(
         return _organisationService.Create(_demoIncidentTemplate);
     }
 
+    //Demonstrate fetching an account. Gets the account and the prints it 
+    //using the IUserInterface dependency
+    private Account DemonstrateFetchingAnAccount(Guid accountToFetchId)
+    {
+        _userInterface.PrintMessage("Fetching newly created account...");
+
+        var account = GetAccountById(accountToFetchId);
+        _userInterface.PrintEntity(account);
+
+        return account;
+    }
+
+    //Demonstrate fetching a contact. Gets the contact and the prints it 
+    //using the IUserInterface dependency
+    private Contact DemonstrateFetchingAContact(Guid contactToFetchId)
+    {
+        _userInterface.PrintMessage("Fetching newly created contact...");
+
+        var contact = GetContactById(contactToFetchId);
+        _userInterface.PrintEntity(contact);
+
+        return contact;
+    }
 
 
     //Demonstrate fetching an incident. Gets the incident and the prints it 
@@ -117,9 +150,39 @@ internal class CustomerServiceAPIExplorationApp(
         _userInterface.PrintMessage("Fetching newly created incident...");
 
         var incident = GetIncidentById(incidentToFetchId);
-        _userInterface.PrintIncident(incident);
+
+        _userInterface.PrintEntity(incident);
 
         return incident;
+    }
+
+    //Demonstrate updating an account. Updates the account by updating its
+    //primary contact value. Refetches the account and then prints the result 
+    //using the IUserInterface dependency
+    private void DemonstrateUpdatingAnAccount(Account accountToUpdate, Guid primaryContactId)
+    {
+        _userInterface.PrintMessage("Updating account primary contact...");
+        accountToUpdate.PrimaryContactId =
+            new EntityReference(Contact.EntityLogicalName, primaryContactId);
+
+        _organisationService.Update(accountToUpdate);
+
+        var updatedAccount = GetAccountById(accountToUpdate.Id);
+        _userInterface.PrintEntity(updatedAccount);
+    }
+
+    //Demonstrate updating an contact. Updates the contact by updating its
+    //primary first name value. Refetches the contact and then prints the result 
+    //using the IUserInterface dependency
+    private void DemonstrateUpdatingAContact(Contact contactToUpdate)
+    {
+        _userInterface.PrintMessage("Updating contact first name...");
+        contactToUpdate.FirstName = _demoValues.ContactUpdatedFirstName;
+
+        _organisationService.Update(contactToUpdate);
+
+        var updatedContact = GetContactById(contactToUpdate.Id);
+        _userInterface.PrintEntity(updatedContact);
     }
 
     //Demonstrate updating an incident. Updates the incident by updating its
@@ -127,23 +190,12 @@ internal class CustomerServiceAPIExplorationApp(
     //the IUserInterface dependency
     private void DemonstrateUpdatingAnIncident(Incident incidentToUpdate)
     {
-        _userInterface.PrintMessage("Updating service stage...");
-
-        var maxServiceStage = servicestage.Resolve;
-        if (incidentToUpdate.ServiceStage != maxServiceStage)
-        {
-            incidentToUpdate.ServiceStage++;
-        }
-        else
-        {
-            incidentToUpdate.ServiceStage = servicestage.Identify;
-        }
-
+        _userInterface.PrintMessage("Updating incident service stage...");
+        incidentToUpdate.ServiceStage = _demoValues.IncidentUpdatedServiceStage;
         _organisationService.Update(incidentToUpdate);
 
         var updatedIncident = GetIncidentById(incidentToUpdate.Id);
-        _userInterface.PrintIncident(updatedIncident);
-
+        _userInterface.PrintEntity(updatedIncident);
     }
 
     //Demonstrates the deletion of entities by removing all demo entities 
@@ -164,31 +216,62 @@ internal class CustomerServiceAPIExplorationApp(
 
     }
 
-    //Fetches all active incidents and prints their titles to the console to
-    //demonstrate that the demo incident is no longer in the DB.
-    private void ValidateDeletionOfIncident()
+    //Validate deletion of an entity of type T by printing all active entities
+    //of type T using the IUserInterface dependency
+    private void ValidateDeletionOfAnEntity<T>(
+        string entityLogicalName,
+        string fieldToPrint,
+        Func<T, string> getFieldToPrintValue)
+        where T : Entity
     {
-        _userInterface.PrintMessage("Fetching all active incidents...");
+        _userInterface.PrintMessage($"Fetching all {entityLogicalName}s...");
 
-        var allActiveIncidentsFilter = new ConditionExpression(
+        var allActiveEntitiesFilter = new ConditionExpression(
                 "statecode",
                 ConditionOperator.Equal,
-                (int)incident_statecode.Active
+                0
         );
 
-        var allActiveIncidents = _organisationService.GetAll<Incident>(
-            Incident.EntityLogicalName,
-            new ColumnSet("title"),
-            [allActiveIncidentsFilter]
+        var allActiveEntites = _organisationService.GetAll<T>(
+            entityLogicalName,
+            new ColumnSet(fieldToPrint),
+            [allActiveEntitiesFilter]
         );
 
-        _userInterface.PrintMessage("Current active incident titles:");
+        _userInterface.PrintMessage($"Current active {entityLogicalName}s:");
         _userInterface.PrintMessage("");
+        _userInterface.PrintEntityList(allActiveEntites, getFieldToPrintValue);
 
-        foreach (var incident in allActiveIncidents)
-        {
-            Console.WriteLine($"- {incident.Title}");
-        }
+    }
+
+    //Helper method to get an account by id. Specifies the column set to 
+    //reduce the size of the response payload.
+    private Account GetAccountById(Guid accountToFetchId)
+    {
+        var columnSet = new ColumnSet(
+            "name",
+            "telephone1",
+            "address1_city",
+            "primarycontactid"
+        );
+
+        return _organisationService.GetById<Account>(
+            Account.EntityLogicalName, accountToFetchId, columnSet);
+    }
+
+    //Helper method to get a contact by id. Specifies the column set to 
+    //reduce the size of the response payload.
+    private Contact GetContactById(Guid contactToFetchId)
+    {
+        var columnSet = new ColumnSet(
+            "fullname",
+            "emailaddress1",
+            "parentcustomerid",
+            "telephone1"
+        );
+
+        return _organisationService.GetById<Contact>(
+            Contact.EntityLogicalName, contactToFetchId, columnSet);
     }
 
 
@@ -200,16 +283,19 @@ internal class CustomerServiceAPIExplorationApp(
         var columnSet = new ColumnSet(
             "title",
             "description",
+            "ticketnumber",
             "customerid",
             "primarycontactid",
             "servicestage",
             "statuscode",
             "statecode",
-            "casetypecode"
+            "createdon",
+            "casetypecode",
+            "caseorigincode",
+            "prioritycode"
         );
 
-        var incident = _organisationService.GetById<Incident>(
+        return _organisationService.GetById<Incident>(
             Incident.EntityLogicalName, incidentToFetchId, columnSet);
-        return incident;
     }
 }

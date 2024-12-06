@@ -1,7 +1,9 @@
+using CityPowerAndLight.Config;
+
 namespace CityPowerAndLight.Model.DemoTemplates;
 
 /// <summary>
-/// The <c>DemoEntityTemplateFactory</c> class provides static methods to create 
+/// The <c>DemoEntityTemplateFactory</c> class provides static methods to return 
 /// template instances of various entities for demonstration purposes.
 /// </summary>
 internal static class DemoEntityTemplateFactory
@@ -11,12 +13,14 @@ internal static class DemoEntityTemplateFactory
     /// </summary>
     /// <returns>A new <see cref="Account"/> instance with predefined values.
     /// </returns>
-    public static Account GetAccountTemplate()
+    public static Account GetAccountTemplate(DemoValuesConfig demoValues)
     {
         Account newAccount = new()
         {
-            Name = $"Relecloud",
-            StatusCode = account_statuscode.Active
+            Name = demoValues.AccountName,
+            Telephone1 = demoValues.AccountTelephone1,
+            Address1_City = demoValues.AccountAddress1_City,
+            StatusCode = demoValues.AccountStatusCode,
         };
         return newAccount;
     }
@@ -26,12 +30,15 @@ internal static class DemoEntityTemplateFactory
     /// </summary>
     /// <returns>A new <see cref="Contact"/> instance with predefined values.
     /// </returns>
-    public static Contact GetContactTemplate()
+    public static Contact GetContactTemplate(DemoValuesConfig demoValues)
     {
         Contact newContact = new()
         {
-            FirstName = $"Jane",
-            LastName = "Smith",
+            FirstName = demoValues.ContactFirstName,
+            LastName = demoValues.ContactLastName,
+            EMailAddress1 = demoValues.ContactEMailAddress1,
+            Telephone1 = demoValues.ContactTelephone1,
+
         };
         return newContact;
     }
@@ -41,16 +48,17 @@ internal static class DemoEntityTemplateFactory
     /// </summary>
     /// <returns>A new <see cref="Incident"/> instance with predefined values.
     /// </returns>
-    public static Incident GetIncidentTemplate()
+    public static Incident GetIncidentTemplate(DemoValuesConfig demoValues)
     {
         Incident newIncident = new()
         {
-            Title = $"Defective Screen",
-            Description = "Laptop display is too bright",
-            StatusCode = incident_statuscode.InProgress,
-            CaseTypeCode = incident_casetypecode.Problem,
-            ServiceStage = servicestage.Identify,
-
+            Title = demoValues.IncidentTitle,
+            Description = demoValues.IncidentDescription,
+            StatusCode = demoValues.IncidentStatusCode,
+            CaseTypeCode = demoValues.IncidentCaseTypeCode,
+            ServiceStage = demoValues.IncidentServiceStage,
+            CaseOriginCode = demoValues.IncidentCaseOriginCode,
+            PriorityCode = demoValues.IncidentPriorityCode,
         };
         return newIncident;
     }

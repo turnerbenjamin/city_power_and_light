@@ -22,9 +22,9 @@ CLIENT_SECRET=<secret value for your app>
 
 ## The Demonstration
 
-This application runs through a number of demonstrations:
+This application demonstrates the performance of CRUD operations on the
+following tables:
 
-- Account, contact and case **creation**
-- Incident **retrieval**
-- Incident **update**
-- Account, contact and incident **deletion**
+- Account
+- Contact
+- Incident/Case
