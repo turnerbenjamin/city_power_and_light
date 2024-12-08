@@ -1,4 +1,3 @@
-using CityPowerAndLight.Model;
 using Microsoft.Xrm.Sdk;
 
 namespace CityPowerAndLight.View;
@@ -19,6 +18,7 @@ internal class ConsoleInterface : IUserInterface
         PrintWithBorder('*', title, 5);
     }
 
+
     /// <summary>
     /// Prints a heading with a dash border.
     /// </summary>
@@ -27,6 +27,7 @@ internal class ConsoleInterface : IUserInterface
     {
         PrintWithBorder('-', title);
     }
+
 
     /// <summary>
     /// Prints a message to the console.
@@ -37,57 +38,21 @@ internal class ConsoleInterface : IUserInterface
         Console.WriteLine(message);
     }
 
-    /// <summary>
-    /// Prints the details of an account to the console.
-    /// </summary>
-    /// <param name="accountToPrint">The account to print.</param>
-    public void PrintEntity(Account accountToPrint)
-    {
-        Console.WriteLine();
-        Console.WriteLine($"Name: {accountToPrint.Name}");
-        Console.WriteLine($"Main Phone: {accountToPrint.Telephone1}");
-        Console.WriteLine($"Address1 (City): {accountToPrint.Address1_City}");
-        Console.WriteLine(
-            $"Primary Contact: {accountToPrint.PrimaryContactId?.Name ?? "null"}");
-        Console.WriteLine();
-    }
 
     /// <summary>
-    /// Prints the details of a contact to the console.
+    /// Prints a specified number of blank lines to the console.
     /// </summary>
-    /// <param name="contactToPrint">The contact to print.</param>
-    public void PrintEntity(Contact contactToPrint)
+    /// <param name="spacerSize">
+    /// The number of blank lines to print. Default is 1.
+    /// </param>
+    public void PrintSpacer(int spacerSize = 1)
     {
-        Console.WriteLine();
-        Console.WriteLine($"Full Name: {contactToPrint.FullName}");
-        Console.WriteLine($"Email: {contactToPrint.EMailAddress1}");
-        Console.WriteLine(
-            $"Company Name: {contactToPrint.ParentCustomerId?.Name ?? "n/a"}");
-
-        Console.WriteLine($"Business Phone: {contactToPrint.Telephone1}");
-        Console.WriteLine();
+        for (int i = 1; i <= spacerSize; i++)
+        {
+            Console.WriteLine();
+        }
     }
 
-
-    /// <summary>
-    /// Prints the details of an incident to the console.
-    /// </summary>
-    /// <param name="incidentToPrint">The incident to print.</param>
-    public void PrintEntity(Incident incidentToPrint)
-    {
-        Console.WriteLine();
-        Console.WriteLine($"Title: {incidentToPrint.Title}");
-        Console.WriteLine($"Description: {incidentToPrint.Description}");
-        Console.WriteLine($"Case Number: {incidentToPrint.TicketNumber}");
-        Console.WriteLine($"Priority: {incidentToPrint.PriorityCode}");
-        Console.WriteLine($"Origin: {incidentToPrint.CaseOriginCode}");
-        Console.WriteLine($"Customer: {incidentToPrint.CustomerId.Name}");
-        Console.WriteLine($"Contact: {incidentToPrint.PrimaryContactId.Name}");
-        Console.WriteLine($"Status Reason: {incidentToPrint.StatusCode}");
-        Console.WriteLine($"CreatedOn: {incidentToPrint.CreatedOn}");
-        Console.WriteLine($"Service Stage: {incidentToPrint.ServiceStage}");
-        Console.WriteLine();
-    }
 
     /// <summary>
     /// Prints a list of entities to the console.
@@ -117,22 +82,24 @@ internal class ConsoleInterface : IUserInterface
     }
 
 
-
     //Overload of PrintWithBorder with padding defaulted to 0
-    private static void PrintWithBorder(char borderChar, string message)
+    private void PrintWithBorder(char borderChar, string message)
     {
         PrintWithBorder(borderChar, message, 0);
     }
 
+
     //Prints a message with borders above and below the message. The message 
     //will be centered withing the borders and padded by the specified value.
-    private static void PrintWithBorder(char borderChar, string message, int padding)
+    private void PrintWithBorder(char borderChar, string message, int padding)
     {
         var border = new string(borderChar, message.Length + padding * 2);
         var messagePadding = new string(' ', padding);
 
-        Console.WriteLine(Environment.NewLine + border);
-        Console.WriteLine($"{messagePadding}{message}");
-        Console.WriteLine(border + Environment.NewLine);
+        PrintSpacer();
+        PrintMessage(border);
+        PrintMessage($"{messagePadding}{message}");
+        PrintMessage(border);
+        PrintSpacer();
     }
 }

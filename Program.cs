@@ -1,4 +1,5 @@
 ﻿using CityPowerAndLight.App;
+using CityPowerAndLight.Model;
 using CityPowerAndLight.Model.DemoTemplates;
 using CityPowerAndLight.Service;
 using CityPowerAndLight.View;
@@ -16,58 +17,125 @@ public class Program
         try
         {
             var app = InitialiseApp(userInterface);
-            app.Run();
+            var runAppTask = app.Run();
+            runAppTask.Wait();
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             userInterface.PrintMessage("Sorry, There has been an unexpected error:");
-            userInterface.PrintMessage(ex.Message);
+            userInterface.PrintMessage(exception.Message);
         }
     }
+
 
     //Initialises dependencies required for the CustomerServiceAPIExplorationApp,
     //and returns an instance of the app.
     private static CustomerServiceAPIExplorationApp InitialiseApp(
         ConsoleInterface userInterface)
     {
-        //Load dataverse credentials from environment variables
         Env.Load();
+
+        IOrganizationService organisationService =
+            InitialiseOrganisationService();
+
+        var appConfiguration = InitialiseAppConfiguration();
+
+        var demoTemplates = InitialiseDemoTemplates(appConfiguration);
+        var tableExplorations = InitialiseTableExplorations(
+            userInterface, organisationService, demoTemplates);
+
+        //Initialise and return the application instance
+        return new CustomerServiceAPIExplorationApp(
+            userInterface,
+            tableExplorations.AccountTableExploration,
+            tableExplorations.ContactTableExploration,
+            tableExplorations.IncidentTableExploration,
+            appConfiguration.DemoValues
+            );
+    }
+
+
+    //Initialise instance of IOrganisation service
+    private static IOrganizationService InitialiseOrganisationService()
+    {
         string? serviceUrl = Environment.GetEnvironmentVariable("SERVICE_URL");
         string? appId = Environment.GetEnvironmentVariable("APP_ID");
         string? clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
 
         //Initialise Dynamics API connection
-        IOrganizationService organisationService =
-            OrganisationServiceConnector.Connect(serviceUrl, appId, clientSecret);
+        return OrganisationServiceConnector.Connect(
+            serviceUrl, appId, clientSecret);
+    }
 
-        // Load non-sensitive configuration from appsettings.json
+
+    //Initialise app configurations settings from appsettings.json
+    private static AppConfig InitialiseAppConfiguration()
+    {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        // Initialise app configuration
-        AppConfig appConfig = new(configuration);
+        return new(configuration);
+    }
 
+
+    //Initialise demo templates using values from the app configuration
+    private static DemoTemplates InitialiseDemoTemplates(
+        AppConfig appConfiguration)
+    {
         //Intitalise entity templates
         var accountTemplate = DemoEntityTemplateFactory.GetAccountTemplate(
-            appConfig.DemoValues
+            appConfiguration.DemoValues
         );
         var contactTemplate = DemoEntityTemplateFactory.GetContactTemplate(
-            appConfig.DemoValues
+            appConfiguration.DemoValues
         );
         var incidentTemplate = DemoEntityTemplateFactory.GetIncidentTemplate(
-            appConfig.DemoValues
+            appConfiguration.DemoValues
         );
 
-        //Initialise and return the application instance
-        return new CustomerServiceAPIExplorationApp(
-            userInterface,
-            organisationService,
-            accountTemplate,
-            contactTemplate,
-            incidentTemplate,
-            appConfig.DemoValues
-            );
+        return new DemoTemplates(
+            accountTemplate, contactTemplate, incidentTemplate);
     }
+
+
+    //Initialise table exploration dependencies
+    private static TableExplorations InitialiseTableExplorations(
+        IUserInterface userInterface,
+        IOrganizationService organisationService,
+        DemoTemplates demoTemplates
+        )
+    {
+        AccountTableExploration accountTableExploration = new(
+            organisationService, userInterface, demoTemplates.Account
+        );
+        ContactTableExploration contactTableExploration = new(
+            organisationService, userInterface, demoTemplates.Contact
+        );
+        IncidentTableExploration incidentTableExploration = new(
+            organisationService, userInterface, demoTemplates.Incident
+        );
+
+        return new TableExplorations(
+            accountTableExploration,
+            contactTableExploration,
+            incidentTableExploration
+        );
+    }
+
+
+    //Structure to hold demo templates.
+    private record DemoTemplates(
+        Account Account,
+        Contact Contact,
+        Incident Incident);
+
+
+    //Structure to hold exploration dependencies.
+    private record TableExplorations(
+        AccountTableExploration AccountTableExploration,
+        IContactTableExploration ContactTableExploration,
+        IIncidentTableExploration IncidentTableExploration);
+
 }
