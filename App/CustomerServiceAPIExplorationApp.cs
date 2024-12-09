@@ -6,8 +6,8 @@ namespace CityPowerAndLight.App;
 
 
 /// <summary>
-/// Provides methods to demonstrate the creation, retrieval, update, and 
-/// deletion of entities in the Customer Service API.
+/// Manages the execution flow of the Customer Service API Exploration 
+/// application.
 /// </summary>
 /// <param name="userInterface">The user interface for displaying messages.
 /// </param>
@@ -44,6 +44,7 @@ internal class CustomerServiceAPIExplorationApp(
         _userInterface.PrintTitle("Running Customer Service API Exploration");
 
         var demoEntityIds = await DemonstrateEntityCreation();
+
         var demoEntities = DemonstrateEntityRetrieval(demoEntityIds);
 
         DemonstateEntityUpdate(demoEntities, demoEntityIds);
@@ -115,18 +116,19 @@ internal class CustomerServiceAPIExplorationApp(
 
     //Demonstrates the deletion of entities by removing all demo entities 
     //created in the demonstration so far. Deletion of one entity can cascade
-    //to other entities, for demonstration purposes, deletion is done 
-    //synchronously, with account deleted last to avoid a cascade.
+    //to other entities automatically. To demonstrate delete on all three
+    //tables, deletion is performed synchronously, with account deleted last to 
+    //avoid a cascade.
     private async Task DemonstrateEntityDeletion(DemoEntityIds demoEntityIds)
     {
         _userInterface.PrintHeading("Demonstrate Deletion of Entities");
 
-        await _contactTableExploration.DemonstrateDeletingAContact(
-            demoEntityIds.ContactId);
-
         await _incidentTableExploration.DemonstrateDeletingAnIncident(
             demoEntityIds.IncidentId
         );
+
+        await _contactTableExploration.DemonstrateDeletingAContact(
+            demoEntityIds.ContactId);
 
         await _accountTableExploration.DemonstrateDeletingAnAccount(
             demoEntityIds.AccountId);
@@ -179,7 +181,7 @@ internal class CustomerServiceAPIExplorationApp(
         DemoEntityIds demoEntityIds)
     {
         var demoEntities = RetrieveDemoEntities(demoEntityIds);
-        _userInterface.PrintMessage("");
+        _userInterface.PrintSpacer();
 
         _accountTableExploration.DisplayAccount(demoEntities.Account);
         _contactTableExploration.DisplayContact(demoEntities.Contact);

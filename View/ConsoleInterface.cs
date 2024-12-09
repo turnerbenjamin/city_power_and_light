@@ -78,7 +78,7 @@ internal class ConsoleInterface : IUserInterface
             }
             PrintMessage("------------------------------");
         }
-        PrintMessage("");
+        PrintSpacer();
     }
 
 

@@ -35,16 +35,20 @@ public class Program
     {
         Env.Load();
 
+        //Initialise dataverse service
         IOrganizationService organisationService =
             InitialiseOrganisationService();
 
+        //Read app configuration values
         var appConfiguration = InitialiseAppConfiguration();
 
+        //Initialise table explorations for account, contact and incident with
+        //demo values from the app configuration
         var demoTemplates = InitialiseDemoTemplates(appConfiguration);
         var tableExplorations = InitialiseTableExplorations(
             userInterface, organisationService, demoTemplates);
 
-        //Initialise and return the application instance
+        //Return a new CustomerServiceAPIExplorationApp instance
         return new CustomerServiceAPIExplorationApp(
             userInterface,
             tableExplorations.AccountTableExploration,
@@ -62,7 +66,6 @@ public class Program
         string? appId = Environment.GetEnvironmentVariable("APP_ID");
         string? clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
 
-        //Initialise Dynamics API connection
         return OrganisationServiceConnector.Connect(
             serviceUrl, appId, clientSecret);
     }
@@ -84,7 +87,6 @@ public class Program
     private static DemoTemplates InitialiseDemoTemplates(
         AppConfig appConfiguration)
     {
-        //Intitalise entity templates
         var accountTemplate = DemoEntityTemplateFactory.GetAccountTemplate(
             appConfiguration.DemoValues
         );

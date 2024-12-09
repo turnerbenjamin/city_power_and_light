@@ -9,8 +9,7 @@ namespace CityPowerAndLight.App;
 
 
 /// <summary>
-/// The <c>AccountTableExploration</c> class provides methods to demonstrate
-/// CRUD operations on the Account table.
+/// Provides methods to demonstrate CRUD operations on the Account table.
 /// </summary>
 /// <param name="organisationService">The organization service instance.</param>
 /// <param name="userInterface">The user interface instance.</param>

@@ -9,7 +9,7 @@ namespace CityPowerAndLight.App;
 
 
 /// <summary>
-/// Provides methods to demonstrate contact creation, fetching, and updating in the CRM system.
+/// Provides methods to demonstrate CRUD operations on the contact table
 /// </summary>
 /// <param name="organisationService">The organization service instance.</param>
 /// <param name="userInterface">The user interface instance.</param>
