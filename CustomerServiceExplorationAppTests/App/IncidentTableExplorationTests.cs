@@ -19,11 +19,10 @@ public class IncidentTableExplorationTests
     [SetUp]
     public void SetUp()
     {
-        //set-up dependencies et
         _organisationServiceMock = new();
         _userInterfaceMock = new();
         _demoIncidentTemplateMock = new();
-        //set-up class under test
+
         _cut = new(
             _organisationServiceMock.Object,
             _userInterfaceMock.Object,
