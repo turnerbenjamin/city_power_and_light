@@ -1,4 +1,5 @@
-﻿using CityPowerAndLight.App;
+﻿using System.Runtime.CompilerServices;
+using CityPowerAndLight.App;
 using CityPowerAndLight.Model;
 using CityPowerAndLight.Model.DemoTemplates;
 using CityPowerAndLight.Service;
@@ -6,6 +7,10 @@ using CityPowerAndLight.View;
 using DotNetEnv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Xrm.Sdk;
+
+
+[assembly: InternalsVisibleTo("CustomerServiceExplorationAppTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace CityPowerAndLight;
 
@@ -33,14 +38,18 @@ public class Program
     private static CustomerServiceAPIExplorationApp InitialiseApp(
         ConsoleInterface userInterface)
     {
-        Env.Load();
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string envFilePath = Path.Combine(baseDirectory, ".env");
+        string appSettingsPath = Path.Combine(baseDirectory, "appsettings.json");
+
+        Env.Load(envFilePath);
 
         //Initialise dataverse service
         IOrganizationService organisationService =
             InitialiseOrganisationService();
 
         //Read app configuration values
-        var appConfiguration = InitialiseAppConfiguration();
+        var appConfiguration = InitialiseAppConfiguration(appSettingsPath);
 
         //Initialise table explorations for account, contact and incident with
         //demo values from the app configuration
@@ -72,11 +81,11 @@ public class Program
 
 
     //Initialise app configurations settings from appsettings.json
-    private static AppConfig InitialiseAppConfiguration()
+    private static AppConfig InitialiseAppConfiguration(string appSettingsPath)
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(appSettingsPath, optional: false, reloadOnChange: true)
             .Build();
 
         return new(configuration);

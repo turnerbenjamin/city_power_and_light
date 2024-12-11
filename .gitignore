@@ -1,6 +1,7 @@
-/bin
-/obj
+*/bin/
+*/obj/
 
 */environmentVariables.json
 */environmentVariablesDF.json
 *.env
+
