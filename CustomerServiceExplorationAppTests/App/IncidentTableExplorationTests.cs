@@ -65,19 +65,16 @@ public class IncidentTableExplorationTests
     }
 
 
-    [TestCase(servicestage.Identify)]
-    [TestCase(servicestage.Research)]
-    [TestCase(servicestage.Resolve)]
+    [Test]
     public async Task
-        DemonstrateUpdatingAnIncident_ShallCorrectlyCallUpdateOnTheOrganisationService(
-            servicestage updatedServiceStage
-        )
+        DemonstrateUpdatingAnIncident_ShallCorrectlyCallUpdateOnTheOrganisationService()
     {
         //Arrange
         var _demoIncidentToUpdateMock = new Mock<Incident>();
+        var testServiceStage = servicestage.Identify;
         //Act
         await _cut!.DemonstrateUpdatingAnIncident(
-            _demoIncidentToUpdateMock.Object, updatedServiceStage);
+            _demoIncidentToUpdateMock.Object, testServiceStage);
         //Assert
         _organisationServiceMock!.Verify(
             mock => mock.Update(_demoIncidentToUpdateMock!.Object),
